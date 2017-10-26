@@ -334,12 +334,13 @@ class encodermotor(slotteddevice):
 #  distance is in degrees and is a float (4-bytes)  with the lsb first. 
 
 # the encoder motor 
-    def run(self, speed):
+    def run(self, speed, angle):
         self.port.sendRequest(
             requestpacket(self.index, action.RUN, self.device, 
                           0x08,    # always refers to i2c address of motor encoder board; self.port.id, 
                           self.slot,
-                          data= struct.pack("1h1f",speed,0.0)))  # run the requested speed forever
+                          data= struct.pack("1h1f",speed,
+                                            angle)))  # called "distance" in firmware, but is angle
 
 #  Port1, slot 1, speed 0, distance 0  -  no motion on any motor (value sent to motor 1, the right motor)
 #  ff 55 0b 00 02 0c 08 01 00 00 00 00 00 00

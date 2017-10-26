@@ -1,9 +1,12 @@
 #  AutoE.py
-
+#
 #  Obstacle-avoidance Autonomy for Spokey
 #  Polls from 3 ultrasound sensors
 #  Turns torwards direction with the furthest obstacle
-#  Tuned for Encoder Motor board with v1 firmware and orion_firmware
+
+#  *** Tuned for Encoder Motor board with v1 firmware and orion_firmware  ***
+#      This means that the run function has an angle parameter:  run(self, speed, angle)
+#      If angle is set to 0.0, we run forever at the speed "speed"
 #  works on Raspberry pi
 
 
@@ -48,21 +51,21 @@ leftMotor = encodermotor(slot.SLOT_2)
 orionBoard.motor1.addDevice(rightMotor)
 orionBoard.motor2.addDevice(leftMotor)
 
-def forward(speed):
-    leftMotor.run(speed)
-    rightMotor.run(-1*speed)  
+def forward(speed, angle):
+    leftMotor.run(speed, angle)
+    rightMotor.run(-1*speed, angle)  
 
-def backward(speed):
-    leftMotor.run(-1*speed)
-    rightMotor.run(speed)  
+def backward(speed, angle):
+    leftMotor.run(-1*speed, angle)
+    rightMotor.run(speed, angle)  
 
-def turnLeft(speed):
-    leftMotor.run(-1*speed)
-    rightMotor.run(-1*speed) 
+def turnLeft(speed, angle):
+    leftMotor.run(-1*speed, angle)
+    rightMotor.run(-1*speed, angle) 
 
-def turnRight(speed):
-    leftMotor.run(speed)
-    rightMotor.run(speed)  
+def turnRight(speed, angle):
+    leftMotor.run(speed, angle)
+    rightMotor.run(speed, angle)  
 
 def stopWithDelay(delay):
     rightMotor.stop()
@@ -72,15 +75,15 @@ def stopWithDelay(delay):
 # with encoders, this will not need to be time-based
 def retreatFromObstacle(cm = None):
         stopWithDelay(0.5)
-        backward(globalSpeed)
+        backward(globalSpeed, 0.0)
         time.sleep(0.3)
         stopWithDelay(0.1)
 
 def turnTowardsDistanceWithFurthestObstacle(leftDistance, rightDistance):
     if leftDistance > rightDistance: 
-        turnLeft(globalSpeed)
+        turnLeft(globalSpeed, 0.0)
     else:
-        turnRight(globalSpeed)  # we prefer turning right in case of ==
+        turnRight(globalSpeed, 0.0)  # we prefer turning right in case of ==
 
     time.sleep(0.3)
     stopWithDelay(0.1)
@@ -88,9 +91,9 @@ def turnTowardsDistanceWithFurthestObstacle(leftDistance, rightDistance):
 
 def randomlyturnLeftOrRight():
     if random.randint(1,10) < 6:
-        turnLeft(globalSpeed)
+        turnLeft(globalSpeed, 0.0)
     else:
-        turnRight(globalSpeed)
+        turnRight(globalSpeed, 0.0 )
     time.sleep(0.3)
     stopWithDelay(0.1)
 
@@ -169,7 +172,7 @@ try:
             leftDistance, leftMillis, centerDistance, centerMillis, rightDistance, rightMillis = getUltrasoundValues()      
             print(time.clock() - start, "  turning  ", centerDistance, rightDistance, leftDistance)
 
-        forward(globalSpeed)
+        forward(globalSpeed, 0.0)
         time.sleep(samplingPeriod)
         leftDistance, leftMillis, centerDistance, centerMillis, rightDistance, rightMillis = getUltrasoundValues()      
         dataString = ("  %5.4f |  LM: %5.4f L: %5.1f |  CM: %5.4f C: %5.1f |  RM: %5.4f R: %5.1f  " %  
