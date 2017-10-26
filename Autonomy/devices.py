@@ -287,11 +287,69 @@ class dcmotor(simpledevice):
     def __init__(self):
         simpledevice.__init__(self, device.MOTOR)
 
+
     def run(self, speed):
         self.port.sendRequest(requestpacket(self.index, action.RUN, self.device, self.port.id, data= struct.pack("1h",speed)))
 
     def stop(self):
         self.port.sendRequest(requestpacket(self.index, action.RUN, self.device, self.port.id, data= struct.pack("1h",0)))
+
+    def parseData(self, data):
+        return False
+
+    def parseMillis(self, data):
+        return False
+
+# orion_firmware.ino uses the MeEncoderMotor() class which assumes the motor encoder board 
+# is loaded with the old motor encoder firmware.    
+#    1. void MeEncoderMotor::begin();
+#    2. boolean MeEncoderMotor::reset();
+#    3. boolean MeEncoderMotor::move(float angle, float speed);
+#    4. boolean MeEncoderMotor::moveTo(float angle, float speed);
+#    5. boolean MeEncoderMotor::runTurns(float turns, float speed);
+#    6. boolean MeEncoderMotor::runSpeed(float speed);
+#    7. boolean MeEncoderMotor::runSpeedAndTime(float speed, float time);
+#    8. float MeEncoderMotor::getCurrentSpeed();
+#    9. float MeEncoderMotor::getCurrentPosition();
+# Currently it only supports the move() function.   
+#   we'll implement run() and stop() via move() first, then add other functionality
+#   from this older motor encoder firmware.  Getting current speed and position 
+#   may prove quite useful if they actually work.    
+#  Much more functionality is supported in the newer firmware.  
+#   Note that Auriga and MegaPi .inos use the newer motor encoder firmware and motor encoder libraries. 
+
+class encodermotor(slotteddevice):
+
+    def __init__(self, moduleslot):
+       slotteddevice.__init__(self, device.ENCODER, moduleslot)  # we'll start as a slotteddevice;  no data expected back
+       
+
+# Port1, slot 1, speed 128, distance 0  -  Motor 1 moves continuously atr speed of 128
+# preamble  len  idx  action (GET)  device (12)  port  slot speed  distance (angle)
+# ff 55     0b   00   02            0c           08    01   80 00  00 00 00 00
+#  the device is 12, the encoder
+#  the port is always the same (0x08 == 9) as it refers to the i2c slave address of the motor encoder board
+#  the slot is the motor;  there are two connected to the board
+#  speed is a short (16-bit signed int) that has the least significant byte first
+#  distance is in degrees and is a float (4-bytes)  with the lsb first. 
+
+# the encoder motor 
+    def run(self, speed):
+        self.port.sendRequest(
+            requestpacket(self.index, action.RUN, self.device, 
+                          0x08,    # always refers to i2c address of motor encoder board; self.port.id, 
+                          self.slot,
+                          data= struct.pack("1h1f",speed,0.0)))  # run the requested speed forever
+
+#  Port1, slot 1, speed 0, distance 0  -  no motion on any motor (value sent to motor 1, the right motor)
+#  ff 55 0b 00 02 0c 08 01 00 00 00 00 00 00
+
+    def stop(self):
+        self.port.sendRequest(
+            requestpacket(self.index, action.RUN, self.device, 
+                          0x08,  # self.port.id, 
+                          self.slot,
+                          data= struct.pack("1h1f",0, 0.0)))
 
     def parseData(self, data):
         return False

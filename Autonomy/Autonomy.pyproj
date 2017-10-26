@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>259769b0-5f43-42ac-ae8d-d694e8e41849</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>AutoD.py</StartupFile>
+    <StartupFile>AutoE.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,6 +24,7 @@
     <Compile Include="AutoB.py" />
     <Compile Include="AutoC.py" />
     <Compile Include="AutoD.py" />
+    <Compile Include="AutoE.py" />
     <Compile Include="Autonomy.py" />
     <Compile Include="AutonomyA.py" />
     <Compile Include="config.py" />

@@ -56,7 +56,7 @@ class board():
 
         whichPort = ''
         if sys.platform == 'win32':   # works on 64-bit systems, too, at least on python27
-            whichPort = 'COM5'
+            whichPort = 'COM10'
         elif sys.platform == 'linux2':  # Raspberry or linux box  
             whichPort = '/dev/ttyUSB0'
         elif sys.platform == 'darwin':  # Mac 

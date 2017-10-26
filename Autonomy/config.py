@@ -46,7 +46,7 @@ class device(validatable):
     SERVO_PIN = 33
     TOUCH_SENSOR = 34
     STEPPER = 40
-    ENCODER = 41
+    BIG_ENCODER = 41
     TIMER = 50
 
 class port(validatable):
